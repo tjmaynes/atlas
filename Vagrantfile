@@ -1,4 +1,5 @@
-#!/usr/bin/env ruby
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/bionic64"
@@ -32,12 +33,10 @@ Vagrant.configure("2") do |config|
   config.vm.network "forwarded_port",
     guest: 8096,
     host: 8096,
-    host_ip: "127.0.0.1",
     id: "jellyfin"
 
   config.vm.network "forwarded_port",
     guest: 7359,
     host: 7359,
-    host_ip: "127.0.0.1",
     id: "jellyfin-udp"
 end

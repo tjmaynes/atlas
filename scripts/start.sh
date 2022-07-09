@@ -9,21 +9,48 @@ function check_requirements() {
   fi
 }
 
-function start_program() {
-  PROGRAM=$1
-  PROGRAM_DIRECTORY=$(pwd)/$1
-
-  if [[ ! -d "$PROGRAM_DIRECTORY" ]]; then
-    echo "$PROGRAM does not exist on path: $(pwd)/$PROGRAM"
+function start_gitea() {
+  if [[ -z "$BACKUP_DIRECTORY" ]]; then
+    echo "Please set an environment variable for 'BACKUP_DIRECTORY' before running this script"
     exit 1
-  elif [[ ! -f "$PROGRAM_DIRECTORY/docker-compose.yml" ]]; then
-    echo "$PROGRAM does not contain docker-compose.yml on path: $PROGRAM_DIRECTORY"
+  elif [[ -z "$GITEA_USER" ]]; then
+    echo "Please set an environment variable for 'GITEA_USER' before running this script"
+    exit 1
+  elif [[ -z "$GITEA_DATABASE" ]]; then
+    echo "Please set an environment variable for 'GITEA_DATABASE' before running this script"
+    exit 1
+  elif [[ -z "$GITEA_DATABASE_PASSWORD" ]]; then
+    echo "Please set an environment variable for 'GITEA_DATABASE_PASSWORD' before running this script"
     exit 1
   fi
 
-  pushd $PROGRAM_DIRECTORY
-    make start
-  popd
+  docker compose up -d
+}
+
+function start_jellyfin() {
+  if [[ -z "$JELLYFIN_BASE_DIRECTORY" ]]; then
+    echo "Please set an environment variable for 'JELLYFIN_BASE_DIRECTORY' before running this script"
+    exit 1
+  elif [[ -z "$JELLYFIN_MEDIA_DIRECTORY" ]]; then
+    echo "Please set an environment variable for 'JELLYFIN_MEDIA_DIRECTORY' before running this script"
+    exit 1
+  elif [[ -z "$JELLYFIN_SERVER_URL" ]]; then
+    echo "Please set an environment variable for 'JELLYFIN_SERVER_URL' before running this script"
+    exit 1
+  elif [[ -z "$JELLYFIN_TIMEZONE" ]]; then
+    echo "Please set an environment variable for 'JELLYFIN_TIMEZONE' before running this script"
+    exit 1
+  fi
+
+  docker compose up -d
+
+  if [[ ! -d "$JELLYFIN_BASE_DIRECTORY" ]]; then
+    mkdir -p $JELLYFIN_BASE_DIRECTORY
+  fi
+
+  if [[ ! -d "$JELLYFIN_MEDIA_DIRECTORY" ]]; then
+    mkdir -p $JELLYFIN_MEDIA_DIRECTORY
+  fi
 }
 
 function main() {
@@ -31,7 +58,7 @@ function main() {
 
   PROGRAMS=(gitea jellyfin)
   for program in ${PROGRAMS[@]}; do
-    start_program $program
+    start_$program
   done
 }
 

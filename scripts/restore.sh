@@ -12,6 +12,18 @@ function check_requirements() {
   fi
 }
 
+function print_preamble() {
+  CONTAINER_NAME=$1
+
+  echo "Restoring '$CONTAINER_NAME' container volume from backup: $BACKUP_DIRECTORY"
+}
+
+function print_postamble() {
+  CONTAINER_NAME=$1
+
+  echo "Finished restoring '$CONTAINER_NAME'"
+}
+
 function unpack_tarred_backup() {
   TAR_BACKUP_LOCATION=$1
   TARGET_BACKUP_DIRECTORY=$2
@@ -23,33 +35,94 @@ function unpack_tarred_backup() {
   fi
 }
 
-function restore_program() {
-  PROGRAM=$1
-  PROGRAM_DIRECTORY=$(pwd)/$PROGRAM
+function wait_until_postgres_is_up() {
+  RETRIES=5
 
-  if [[ ! -d "$PROGRAM_DIRECTORY" ]]; then
-    echo "$PROGRAM does not exist on path: $PROGRAM_DIRECTORY"
+  until docker exec -i "$1" bash -c "psql -U $2 -c \"select 1\"" > /dev/null 2>&1 || [ $RETRIES -eq 0 ]; do
+    echo "Waiting for postgres server, $((RETRIES--)) remaining attempts..."
+    sleep 1
+  done
+}
+
+function restore_gitea() {
+  if [[ ! -d "$BACKUP_DIRECTORY" ]]; then
+    echo "No gitea backup directory exists in the file system: $BACKUP_DIRECTORY. Nothing to restore!"
     exit 1
-  elif [[ ! -f "$PROGRAM_DIRECTORY/docker-compose.yml" ]]; then
-    echo "$PROGRAM does not contain docker-compose.yml on path: $PROGRAM_DIRECTORY"
+  elif [[ ! -d "$BACKUP_DIRECTORY/gitea" ]]; then
+    echo "No gitea backup directory exists in the file system: $BACKUP_DIRECTORY. Nothing to restore!"
+    exit 1
+  elif [[ -z "$GITEA_USER" ]]; then
+    echo "Please set an environment variable for 'GITEA_USER' before running this script"
+    exit 1
+  elif [[ -z "$GITEA_DATABASE" ]]; then
+    echo "Please set an environment variable for 'GITEA_DATABASE' before running this script"
     exit 1
   fi
 
-  LATEST_TAR_BACKUP_LOCATION="$(ls -td $BACKUP_DIRECTORY/$PROGRAM-* | head -1)"
+  print_preamble "gitea-db" "$GITEA_USER"
 
-  unpack_tarred_backup "$LATEST_TAR_BACKUP_LOCATION" "$BACKUP_DIRECTORY/$PROGRAM"
+  wait_until_postgres_is_up "gitea-db"
 
-  pushd $PROGRAM_DIRECTORY
-    make restore
-  popd
+  docker cp "$BACKUP_DIRECTORY/gitea/gitea-db.sql" gitea-db:/tmp
+
+  docker exec -i "gitea-db" \
+    bash -c "psql -U $GITEA_USER -d $GITEA_DATABASE < /tmp/gitea-db.sql"
+
+  print_postamble "gitea-db" 
+
+  print_preamble "gitea-web"
+
+  docker cp "$BACKUP_DIRECTORY/gitea/data" gitea-web:/tmp/backup-data
+
+  docker exec -i "gitea-web" \
+    bash -c "cp -rf /tmp/backup-data /data/gitea"
+
+  if [[ -d "$BACKUP_DIRECTORY/gitea/repos" ]]; then
+    docker cp "$BACKUP_DIRECTORY/gitea/repos" gitea-web:/tmp/backup-repos
+
+    docker exec -i "gitea-web" \
+      bash -c "cp -rf /tmp/backup-repos /data/git/repositories"
+  fi
+
+  docker exec -i "gitea-web" \
+    bash -c "chown -R git:git /data"
+
+  docker exec -u git -i "gitea-web" \
+    bash -c "/usr/local/bin/gitea -c '/data/gitea/conf/app.ini' admin regenerate hooks" || true
+
+  print_postamble "gitea-web" 
+}
+
+function restore_jellyfin() {
+  if [[ ! -d "$BACKUP_DIRECTORY" ]]; then
+    echo "No gitea backup directory exists in the file system: $BACKUP_DIRECTORY. Nothing to restore!"
+    exit 1
+  elif [[ -z "$JELLYFIN_BASE_DIRECTORY" ]]; then
+    echo "Please set an environment variable for 'JELLYFIN_BASE_DIRECTORY' before running this script"
+    exit 1
+  fi
+
+  print_preamble "jellyfin-server"
+
+  cp -rf $BACKUP_DIRECTORY/jellyfin $JELLYFIN_BASE_DIRECTORY
+
+  print_postamble "jellyfin-server"
 }
 
 function main() {
   check_requirements
 
-  PROGRAMS=(gitea)
+  PROGRAMS=(gitea jellyfin)
   for program in ${PROGRAMS[@]}; do
-    restore_program $program
+    LATEST_TAR_BACKUP_LOCATION="$(ls -td $BACKUP_DIRECTORY/$program-* | head -1)"
+    
+    if [[ -f "$LATEST_TAR_BACKUP_LOCATION" ]]; then
+      unpack_tarred_backup "$LATEST_TAR_BACKUP_LOCATION" "$BACKUP_DIRECTORY/$program"
+
+      restore_$program
+
+      rm -rf $BACKUP_DIRECTORY/$program
+    fi
   done
 }
 

@@ -1,17 +1,7 @@
 version: "3.5"
 
-volumes:
-  gitea_web:
-    driver: local
-  gitea_db:
-    driver: local
-
-networks:
-  gitea:
-    external: false
-
 services:
-  app:
+  gitea:
     image: gitea/gitea:1.16.8
     container_name: gitea-web
     restart: always
@@ -33,9 +23,9 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     depends_on:
-      - db
+      - gitea-db
 
-  db:
+  gitea-db:
     image: postgres:14
     container_name: gitea-db
     restart: always
@@ -55,4 +45,24 @@ services:
       timeout: 5s
       retries: 5
 
+  jellyfin:
+    image: linuxserver/jellyfin:amd64-10.8.1
+    container_name: jellyfin-server
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ${JELLYFIN_BASE_DIRECTORY}/config:/config
+      - ${JELLYFIN_MEDIA_DIRECTORY}:/media
+      # - ${JELLYFIN_MEDIA_DIRECTORY}/media2:/media2:ro
+    environment:
+      - TZ=${JELLYFIN_TIMEZONE}
+      - JELLYFIN_PublishedServerUrl=${JELLYFIN_SERVER_URL}
 
+volumes:
+  gitea_web:
+  gitea_db:
+    driver: local
+
+networks:
+  gitea:
+    external: false
