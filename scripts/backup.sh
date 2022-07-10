@@ -71,13 +71,28 @@ function backup_portainer() {
     exit 1
   fi
 
-  print_preamble "portainer-server"
+  print_preamble "portainer-web"
 
   pushd $(dirname $PORTAINER_BASE_DIRECTORY)
     tar -czvf $BACKUP_DIRECTORY/portainer-$BACKUP_TIMESTAMP.tar.gz portainer/data
   popd
 
-  print_postamble "portainer-server"
+  print_postamble "portainer-web"
+}
+
+function backup_flame() {
+  if [[ -z "$FLAME_BASE_DIRECTORY" ]]; then
+    echo "Please set a value for environment variable 'FLAME_BASE_DIRECTORY'"
+    exit 1
+  fi
+
+  print_preamble "flame-web"
+
+  pushd $(dirname $FLAME_BASE_DIRECTORY)
+    tar -czvf $BACKUP_DIRECTORY/flame-$BACKUP_TIMESTAMP.tar.gz flame/data
+  popd
+
+  print_postamble "flame-web"
 }
 
 function main() {
@@ -90,7 +105,7 @@ function main() {
 
   BACKUP_TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 
-  PROGRAMS=(gitea jellyfin tinyMediaManager portainer)
+  PROGRAMS=(gitea jellyfin tinyMediaManager portainer flame)
   for program in ${PROGRAMS[@]}; do
     backup_$program
   done

@@ -7,6 +7,7 @@
 | [jellyfin](https://jellyfin.org/)                          | media server                       | docker-compose             | ✅ |
 | [tinyMediaManager](https://www.tinymediamanager.org/)      | media management server            | docker-compose             | ✅ |
 | [portainer](https://portainer.io)                          | web-based docker manager           | docker-compose             | ✅ |
+| [flame](https://github.com/pawelmalak/flame)               | web-based dashboard for server     | docker-compose             | ✅ |
 | [calibre-web](https://github.com/janeczku/calibre-web)     | web-based ebook-reader             | docker-compose             | 🚧 |
 | [bitwarden](https://bitwarden.com/)                        | password-manager                   | docker-compose             | 🚧 |
 

@@ -24,6 +24,11 @@ services:
       - /etc/localtime:/etc/localtime:ro
     depends_on:
       - gitea-db
+    labels:
+      - flame.type=application
+      - flame.name=Gitea
+      - flame.url=${GITEA_URL}
+      - flame.icon=icon-name
 
   gitea-db:
     image: postgres:14
@@ -85,6 +90,18 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ${PORTAINER_BASE_DIRECTORY}/data:/data
+
+  flame:
+    image: pawelmalak/flame:2.3.0
+    container_name: flame-web
+    restart: unless-stopped
+    volumes:
+      - ${FLAME_BASE_DIRECTORY}/data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - ${FLAME_PORT}:5005
+    environment:
+      - PASSWORD=${FLAME_PASSWORD}
 
 volumes:
   gitea_web:

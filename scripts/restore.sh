@@ -141,10 +141,26 @@ function restore_portainer() {
   print_postamble "portainer-web"
 }
 
+function restore_flame() {
+  if [[ ! -d "$BACKUP_DIRECTORY" ]]; then
+    echo "No gitea backup directory exists in the file system: $BACKUP_DIRECTORY. Nothing to restore!"
+    exit 1
+  elif [[ -z "$FLAME_BASE_DIRECTORY" ]]; then
+    echo "Please set an environment variable for 'FLAME_BASE_DIRECTORY' before running this script"
+    exit 1
+  fi
+
+  print_preamble "flame-web"
+
+  sudo cp -rf $BACKUP_DIRECTORY/flame $FLAME_BASE_DIRECTORY
+
+  print_postamble "flame-web"
+}
+
 function main() {
   check_requirements
 
-  PROGRAMS=(gitea jellyfin tinyMediaManager portainer)
+  PROGRAMS=(gitea jellyfin tinyMediaManager portainer flame)
   for program in ${PROGRAMS[@]}; do
     LATEST_TAR_BACKUP_LOCATION="$(ls -td $BACKUP_DIRECTORY/$program-* | head -1)"
     

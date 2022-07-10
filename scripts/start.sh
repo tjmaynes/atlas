@@ -17,6 +17,8 @@ function check_requirements() {
 
   check_env_var_exists "BACKUP_DIRECTORY" "$BACKUP_DIRECTORY"
   check_env_var_exists "TIMEZONE" "$TIMEZONE"
+  check_env_var_exists "GITEA_PORT" "$GITEA_PORT"
+  check_env_var_exists "GITEA_URL" "$GITEA_URL"
   check_env_var_exists "GITEA_USER" "$GITEA_USER"
   check_env_var_exists "GITEA_DATABASE" "$GITEA_DATABASE"
   check_env_var_exists "GITEA_DATABASE_PASSWORD" "$GITEA_DATABASE_PASSWORD"
@@ -29,6 +31,9 @@ function check_requirements() {
   check_env_var_exists "TINYMEDIAMANAGER_TVSHOWS_DIRECTORY" "$TINYMEDIAMANAGER_TVSHOWS_DIRECTORY"
   check_env_var_exists "PORTAINER_PORT" "$PORTAINER_PORT"
   check_env_var_exists "PORTAINER_BASE_DIRECTORY" "$PORTAINER_BASE_DIRECTORY"
+  check_env_var_exists "FLAME_PORT" "$FLAME_PORT"
+  check_env_var_exists "FLAME_BASE_DIRECTORY" "$FLAME_BASE_DIRECTORY"
+  check_env_var_exists "FLAME_PASSWORD" "$FLAME_PASSWORD"
 }
 
 function main() {

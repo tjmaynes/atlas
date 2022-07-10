@@ -23,7 +23,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.hostname = "atlas"
 
-  supported_programs = %w(gitea jellyfin tinymediamanager portainer)
+  supported_programs = %w(gitea jellyfin tinymediamanager portainer flame)
   environment = "development"
 
   atlas = AtlasBuilder.new(supported_programs, environment)
