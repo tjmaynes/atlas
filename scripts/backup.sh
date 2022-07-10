@@ -32,7 +32,7 @@ function backup_gitea() {
 
   docker cp gitea-web:/tmp/gitea.tar.gz $BACKUP_DIRECTORY/gitea-$BACKUP_TIMESTAMP.tar.gz
 
-  print_postamble "gitea-web" 
+  print_postamble "gitea-web"
 }
 
 function backup_jellyfin() {
