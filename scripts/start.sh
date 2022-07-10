@@ -27,18 +27,12 @@ function check_requirements() {
   check_env_var_exists "TINYMEDIAMANAGER_BASE_DIRECTORY" "$TINYMEDIAMANAGER_BASE_DIRECTORY"
   check_env_var_exists "TINYMEDIAMANAGER_MOVIES_DIRECTORY" "$TINYMEDIAMANAGER_MOVIES_DIRECTORY"
   check_env_var_exists "TINYMEDIAMANAGER_TVSHOWS_DIRECTORY" "$TINYMEDIAMANAGER_TVSHOWS_DIRECTORY"
+  check_env_var_exists "PORTAINER_PORT" "$PORTAINER_PORT"
+  check_env_var_exists "PORTAINER_BASE_DIRECTORY" "$PORTAINER_BASE_DIRECTORY"
 }
 
 function main() {
   check_requirements
-
-  if [[ ! -d "$JELLYFIN_BASE_DIRECTORY" ]]; then
-    mkdir -p $JELLYFIN_BASE_DIRECTORY
-  fi
-
-  if [[ ! -d "$JELLYFIN_MEDIA_DIRECTORY" ]]; then
-    mkdir -p $JELLYFIN_MEDIA_DIRECTORY
-  fi
 
   docker compose up -d
 }

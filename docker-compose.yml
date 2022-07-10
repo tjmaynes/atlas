@@ -73,6 +73,19 @@ services:
       - PUID=1000
       - PGID=1000
 
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer-web
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - ${PORTAINER_PORT}:9000
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${PORTAINER_BASE_DIRECTORY}/data:/data
+
 volumes:
   gitea_web:
   gitea_db:

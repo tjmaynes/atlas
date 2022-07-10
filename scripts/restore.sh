@@ -104,7 +104,7 @@ function restore_jellyfin() {
 
   print_preamble "jellyfin-server"
 
-  cp -rf $BACKUP_DIRECTORY/jellyfin $JELLYFIN_BASE_DIRECTORY
+  sudo cp -rf $BACKUP_DIRECTORY/jellyfin $JELLYFIN_BASE_DIRECTORY
 
   print_postamble "jellyfin-server"
 }
@@ -120,15 +120,31 @@ function restore_tinyMediaManager() {
 
   print_preamble "tinyMediaManager-web"
 
-  cp -rf $BACKUP_DIRECTORY/tinyMediaManager $TINYMEDIAMANAGER_BASE_DIRECTORY
+  sudo cp -rf $BACKUP_DIRECTORY/tinyMediaManager $TINYMEDIAMANAGER_BASE_DIRECTORY
 
   print_postamble "tinyMediaManager-web"
+}
+
+function restore_portainer() {
+  if [[ ! -d "$BACKUP_DIRECTORY" ]]; then
+    echo "No gitea backup directory exists in the file system: $BACKUP_DIRECTORY. Nothing to restore!"
+    exit 1
+  elif [[ -z "$PORTAINER_BASE_DIRECTORY" ]]; then
+    echo "Please set an environment variable for 'PORTAINER_BASE_DIRECTORY' before running this script"
+    exit 1
+  fi
+
+  print_preamble "portainer-web"
+
+  sudo cp -rf $BACKUP_DIRECTORY/portainer $PORTAINER_BASE_DIRECTORY
+
+  print_postamble "portainer-web"
 }
 
 function main() {
   check_requirements
 
-  PROGRAMS=(gitea jellyfin tinyMediaManager)
+  PROGRAMS=(gitea jellyfin tinyMediaManager portainer)
   for program in ${PROGRAMS[@]}; do
     LATEST_TAR_BACKUP_LOCATION="$(ls -td $BACKUP_DIRECTORY/$program-* | head -1)"
     

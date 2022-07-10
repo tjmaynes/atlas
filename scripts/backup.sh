@@ -65,6 +65,21 @@ function backup_tinyMediaManager() {
   print_postamble "tinyMediaManager-web"
 }
 
+function backup_portainer() {
+  if [[ -z "$PORTAINER_BASE_DIRECTORY" ]]; then
+    echo "Please set a value for environment variable 'PORTAINER_BASE_DIRECTORY'"
+    exit 1
+  fi
+
+  print_preamble "portainer-server"
+
+  pushd $(dirname $PORTAINER_BASE_DIRECTORY)
+    tar -czvf $BACKUP_DIRECTORY/portainer-$BACKUP_TIMESTAMP.tar.gz portainer/data
+  popd
+
+  print_postamble "portainer-server"
+}
+
 function main() {
   check_requirements
 
@@ -75,7 +90,7 @@ function main() {
 
   BACKUP_TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 
-  PROGRAMS=(gitea jellyfin tinyMediaManager)
+  PROGRAMS=(gitea jellyfin tinyMediaManager portainer)
   for program in ${PROGRAMS[@]}; do
     backup_$program
   done

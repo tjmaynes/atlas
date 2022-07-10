@@ -6,8 +6,9 @@
 | [gitea](https://gitea.io/en-us/)                           | git server                         | docker-compose             | ✅ |
 | [jellyfin](https://jellyfin.org/)                          | media server                       | docker-compose             | ✅ |
 | [tinyMediaManager](https://www.tinymediamanager.org/)      | media management server            | docker-compose             | ✅ |
-| [bitwarden](https://bitwarden.com/)                        | password-manager                   | docker-compose             | 🚧 |
+| [portainer](https://portainer.io)                          | web-based docker manager           | docker-compose             | ✅ |
 | [calibre-web](https://github.com/janeczku/calibre-web)     | web-based ebook-reader             | docker-compose             | 🚧 |
+| [bitwarden](https://bitwarden.com/)                        | password-manager                   | docker-compose             | 🚧 |
 
 ## Requirements
 

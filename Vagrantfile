@@ -2,6 +2,11 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
+  config.vm.provider "virtualbox" do |v|
+    v.memory = 4096
+    v.cpus = 2
+  end
+
   config.vm.box = "ubuntu/bionic64"
 
   config.vm.synced_folder ".", "/vagrant/atlas"
@@ -18,31 +23,64 @@ Vagrant.configure("2") do |config|
 
   config.vm.hostname = "atlas"
 
-  config.vm.network "forwarded_port",
-    guest: 3000,
-    host: 3000,
-    host_ip: "127.0.0.1",
-    id: "gitea"
+  supported_programs = %w(gitea jellyfin tinymediamanager portainer)
+  environment = "development"
 
-  config.vm.network "forwarded_port",
-    guest: 222,
-    host: 222,
-    host_ip: "127.0.0.1",
-    id: "gitea-git"
+  atlas = AtlasBuilder.new(supported_programs, environment)
 
-  config.vm.network "forwarded_port",
-    guest: 8096,
-    host: 8096,
-    id: "jellyfin"
+  supported_programs.each do |supported_program|
+    host_ip = atlas.use_host_ip(supported_program) ? "127.0.0.1" : nil
 
-  config.vm.network "forwarded_port",
-    guest: 7359,
-    host: 7359,
-    id: "jellyfin-udp"
+    atlas.get_ports(supported_program).each do |name, port|
+      config.vm.network "forwarded_port",
+        guest: port,
+        host: port,
+        host_ip: host_ip,
+        id: name.downcase
+    end
+  end
+end
 
-  config.vm.network "forwarded_port",
-    guest: 4001,
-    host: 4001,
-    host_ip: "127.0.0.1",
-    id: "tinyMediaManager"
+class AtlasBuilder
+  def initialize(supported_programs, environment)
+    raw_environment_variables = File.open(".env.#{environment}").read.split("\n")
+      .map { |data| data.split("=") }
+      .to_h
+
+    @environment_variables = Hash.new
+
+    raw_environment_variables.each do |key, value|
+      terms = key.split("_")
+
+      if terms.count() > 1
+        program = terms[0].downcase
+
+        if supported_programs.include? program
+          @environment_variables[program] = raw_environment_variables.select do |key, value|
+            key.include? program.upcase
+          end
+        else
+          @environment_variables[key] = value
+        end
+      else
+        @environment_variables[key] = value
+      end
+    end
+  end
+
+  def add_environment_variable(key, value)
+    @environment_variables[key] = value
+  end
+
+  def get_ports(program)
+    @environment_variables[program].select { |key, value| key.include? "_PORT" }
+  end
+
+  def use_host_ip(program)
+    begin
+      @environment_variables[program]["#{program.upcase}_USE_NETWORK_HOST"] == "true"
+    rescue
+      false
+    end
+  end
 end
