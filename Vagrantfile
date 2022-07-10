@@ -39,4 +39,10 @@ Vagrant.configure("2") do |config|
     guest: 7359,
     host: 7359,
     id: "jellyfin-udp"
+
+  config.vm.network "forwarded_port",
+    guest: 4001,
+    host: 4001,
+    host_ip: "127.0.0.1",
+    id: "tinyMediaManager"
 end

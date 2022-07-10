@@ -6,8 +6,8 @@ services:
     container_name: gitea-web
     restart: always
     ports:
-      - 3000:3000
-      - 222:22
+      - ${GITEA_PORT}:3000
+      - ${GITEA_SSH_PORT}:22
     environment:
       - USER_UID=1000
       - USER_GID=1000
@@ -55,8 +55,23 @@ services:
       - ${JELLYFIN_MEDIA_DIRECTORY}:/media
       # - ${JELLYFIN_MEDIA_DIRECTORY}/media2:/media2:ro
     environment:
-      - TZ=${JELLYFIN_TIMEZONE}
+      - TZ=${TIMEZONE}
       - JELLYFIN_PublishedServerUrl=${JELLYFIN_SERVER_URL}
+
+  tinyMediaManager:
+    image: tinymediamanager/tinymediamanager:4.2.8
+    container_name: tinyMediaManager-web
+    restart: always
+    ports:
+      - ${TINYMEDIAMANAGER_PORT}:4000
+    volumes:
+      - ${TINYMEDIAMANAGER_BASE_DIRECTORY}/data:/config
+      - ${TINYMEDIAMANAGER_MOVIES_DIRECTORY}:/media/movies
+      - ${TINYMEDIAMANAGER_TVSHOWS_DIRECTORY}:/media/tvshows
+    environment:
+      - TZ=${TIMEZONE}
+      - PUID=1000
+      - PGID=1000
 
 volumes:
   gitea_web:

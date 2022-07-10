@@ -109,10 +109,26 @@ function restore_jellyfin() {
   print_postamble "jellyfin-server"
 }
 
+function restore_tinyMediaManager() {
+  if [[ ! -d "$BACKUP_DIRECTORY" ]]; then
+    echo "No gitea backup directory exists in the file system: $BACKUP_DIRECTORY. Nothing to restore!"
+    exit 1
+  elif [[ -z "$TINYMEDIAMANAGER_BASE_DIRECTORY" ]]; then
+    echo "Please set an environment variable for 'TINYMEDIAMANAGER_BASE_DIRECTORY' before running this script"
+    exit 1
+  fi
+
+  print_preamble "tinyMediaManager-web"
+
+  cp -rf $BACKUP_DIRECTORY/tinyMediaManager $TINYMEDIAMANAGER_BASE_DIRECTORY
+
+  print_postamble "tinyMediaManager-web"
+}
+
 function main() {
   check_requirements
 
-  PROGRAMS=(gitea jellyfin)
+  PROGRAMS=(gitea jellyfin tinyMediaManager)
   for program in ${PROGRAMS[@]}; do
     LATEST_TAR_BACKUP_LOCATION="$(ls -td $BACKUP_DIRECTORY/$program-* | head -1)"
     

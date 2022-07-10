@@ -5,7 +5,7 @@
 | :--------------------------------------------------------- | :--------------------------------: | :------------------------: | :----: |
 | [gitea](https://gitea.io/en-us/)                           | git server                         | docker-compose             | ✅ |
 | [jellyfin](https://jellyfin.org/)                          | media server                       | docker-compose             | ✅ |
-| [tinyMediaManager](https://www.tinymediamanager.org/)      | media management server            | docker-compose             | 🚧 |
+| [tinyMediaManager](https://www.tinymediamanager.org/)      | media management server            | docker-compose             | ✅ |
 | [bitwarden](https://bitwarden.com/)                        | password-manager                   | docker-compose             | 🚧 |
 | [calibre-web](https://github.com/janeczku/calibre-web)     | web-based ebook-reader             | docker-compose             | 🚧 |
 
@@ -24,6 +24,11 @@ make start
 To backup the home server, run the following command:
 ```bash
 make backup
+```
+
+To restore the home server, run the following command:
+```bash
+make restore
 ```
 
 To stop the home server, run the following command:

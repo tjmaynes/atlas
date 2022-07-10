@@ -36,6 +36,11 @@ function backup_gitea() {
 }
 
 function backup_jellyfin() {
+  if [[ -z "$JELLYFIN_BASE_DIRECTORY" ]]; then
+    echo "Please set a value for environment variable 'JELLYFIN_BASE_DIRECTORY'"
+    exit 1
+  fi
+
   print_preamble "jellyfin-server"
 
   pushd $(dirname $JELLYFIN_BASE_DIRECTORY)
@@ -43,6 +48,21 @@ function backup_jellyfin() {
   popd
 
   print_postamble "jellyfin-server"
+}
+
+function backup_tinyMediaManager() {
+  if [[ -z "$TINYMEDIAMANAGER_BASE_DIRECTORY" ]]; then
+    echo "Please set a value for environment variable 'TINYMEDIAMANAGER_BASE_DIRECTORY'"
+    exit 1
+  fi
+
+  print_preamble "tinyMediaManager-web"
+
+  pushd $(dirname $TINYMEDIAMANAGER_BASE_DIRECTORY)
+    tar -czvf $BACKUP_DIRECTORY/tinyMediaManager-$BACKUP_TIMESTAMP.tar.gz tinyMediaManager/data
+  popd
+
+  print_postamble "tinyMediaManager-web"
 }
 
 function main() {
@@ -55,7 +75,7 @@ function main() {
 
   BACKUP_TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 
-  PROGRAMS=(gitea jellyfin)
+  PROGRAMS=(gitea jellyfin tinyMediaManager)
   for program in ${PROGRAMS[@]}; do
     backup_$program
   done
