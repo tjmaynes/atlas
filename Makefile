@@ -16,7 +16,7 @@ restore:
 	./scripts/$@.sh
 
 destroy: stop
-	./scripts/delete-volumes.sh
+	./scripts/$@.sh
 
 dev:
 	vagrant up --provision
